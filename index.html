@@ -1,15 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="style.css" />
   <meta charset="UTF-8" />
   <title>Dante XML to Text Converter</title>
   <script defer src="script.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #bd8181;
+      color: #222;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-family: monospace;
+      overflow-x: auto;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <h1>Dante XML to Text Converter</h1>
+  <p>
+    Upload your <strong>Dante Controller XML preset file</strong> (usually named <code>Dante.xml</code>) to convert it into a readable format.
+    <br>
+    You can export this from <em>Dante Controller</em> via the <strong>Presets</strong> menu.
+  </p>
+
+  <label for="fileInput"><strong>Select your Dante XML file:</strong></label><br>
   <input type="file" id="fileInput" accept=".xml" />
+
   <pre id="output"></pre>
-  <!-- Add the Download Button -->
+
   <button id="downloadBtn" style="display:none;">Download as .txt</button>
 </body>
 </html>

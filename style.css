@@ -1,0 +1,48 @@
+body {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    font-family: system-ui, sans-serif;
+    padding: 2rem;
+    line-height: 1.6;
+  }
+  
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #ffffff;
+  }
+  
+  p, label {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  input[type="file"] {
+    margin-bottom: 1rem;
+    color: #e0e0e0;
+  }
+  
+  pre {
+    background-color: #2c2c2c;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-family: monospace;
+    font-size: 0.95rem;
+  }
+  
+  button {
+    margin-top: 1rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    background-color: #007acc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #005fa3;
+  }
+  
