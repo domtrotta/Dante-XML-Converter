@@ -12,7 +12,7 @@ This is a simple web-based tool that converts Dante Controller XML preset files 
 - Lets you download the result as a `.txt` file
 
 ## 💻 How To Use
-1. Open the tool: [(https://domtrotta.github.io/Dante-XML-Converter/)]
+1. Open the tool: [https://domtrotta.github.io/Dante-XML-Converter/](https://domtrotta.github.io/Dante-XML-Converter/)
 2. Click **Choose File** and upload your `Dante.xml` file
 3. View the formatted output directly in the browser
 4. Click **Download as .txt** to save the result
