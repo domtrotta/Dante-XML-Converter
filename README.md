@@ -1,32 +1,37 @@
-# Dante XML to Text Converter
+# Dante XML to Matrix Export
 
-This is a simple web-based tool that converts Dante Controller XML preset files into a clean, readable text format.
-
-## 🔧 What It Does
-- Parses `.xml` Dante Controller preset files
-- Extracts:
-  - Preset name, version, description
-  - Device details (model, manufacturer, sample rate, etc.)
-  - All Rx and Tx channel routing
-- Displays everything in a readable table-style format
-- Lets you download the result as a `.txt` file
-
-## 💻 How To Use
-1. Open the tool: [https://domtrotta.github.io/Dante-XML-Converter/](https://domtrotta.github.io/Dante-XML-Converter/)
-2. Click **Choose File** and upload your `Dante.xml` file
-3. View the formatted output directly in the browser
-4. Click **Download as .txt** to save the result
-
-## 📦 Files
-- `index.html` — main webpage
-- `script.js` — handles XML parsing and formatting
-- `style.css` — (optional) for UI styling
-
-## ⚠️ Notes
-- This tool runs completely in your browser
-- No data is uploaded or saved
-- Works offline once loaded
+This tool converts Dante Controller XML preset files into a clear, styled **matrix view Excel file (.xlsx)**.  
+It’s designed to quickly show Rx/Tx channel routing in a format that looks like Dante Controller’s grid.
 
 ---
 
-Want to improve it? Fork the repo or open an issue.
+## 🔗 Try it here:
+**[https://domtrotta.github.io/Dante-XML-Converter/](https://domtrotta.github.io/Dante-XML-Converter/)**
+
+---
+
+## 📦 What it does
+- Reads `.xml` preset exported from Dante Controller
+- Extracts device and channel routing info
+- Builds a matrix with:
+  - Rx devices/channels on rows
+  - Tx devices/channels as merged headers
+  - Dot markers (●) at each active subscription
+- Exports it as a real `.xlsx` Excel file (with merged cells, styling, and fixed column width)
+
+---
+
+## 🧑‍💻 How to use
+1. Go to the tool page  
+2. Upload your Dante `.xml` preset file  
+3. Click **Get Your MATRIX File**  
+4. Excel file downloads instantly
+
+---
+
+## 🖼 Example Output
+
+Once you upload `matrix-preview.png`, add this:
+
+```markdown
+![Matrix Example](matrix-preview.png)
