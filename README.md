@@ -34,4 +34,5 @@ It’s designed to quickly show Rx/Tx channel routing in a format that looks lik
 Once you upload `matrix-preview.png`, add this:
 
 ```markdown
-![Matrix Example](matrix-preview.png)
+![Matrix Example](https://raw.githubusercontent.com/domtrotta/Dante-XML-Converter/main/matrix-preview.png)
+
