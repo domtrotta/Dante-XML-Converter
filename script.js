@@ -1,3 +1,5 @@
+let parsedData = null;
+
 document.getElementById('fileInput').addEventListener('change', function(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -7,85 +9,109 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
     const xmlText = e.target.result;
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
+    parsedData = xmlDoc;
 
-    const output = [];
-
-    // Preset properties
-    const presetName = xmlDoc.querySelector('name')?.textContent || '';
-    const description = xmlDoc.querySelector('description')?.textContent || '';
-    const version = xmlDoc.querySelector('preset')?.getAttribute('version') || '';
-
-    output.push(`--> Dante Controller Preset Properties <--`);
-    output.push(`@version : ${version}`);
-    output.push(`name     : ${presetName}`);
-    output.push(`description : ${description}`);
-    output.push('');
-
-    // Device attributes
-    const device = xmlDoc.querySelector('device');
-    if (device) {
-      output.push(`--> Device ATTRIBUTES <--`);
-      output.push(`name             : ${device.querySelector('name')?.textContent}`);
-      output.push(`manufacturer     : ${device.querySelector('manufacturer_name')?.textContent}`);
-      output.push(`model            : ${device.querySelector('model_name')?.textContent}`);
-      output.push(`model_version    : ${device.querySelector('model_version')?.textContent}`);
-      output.push(`device_type_str  : ${device.querySelector('device_type_string')?.textContent}`);
-      output.push(`samplerate       : ${device.querySelector('samplerate')?.textContent}`);
-      output.push(`encoding         : ${device.querySelector('encoding')?.textContent}`);
-      output.push(`unicast_latency  : ${device.querySelector('unicast_latency')?.textContent}`);
-      output.push('');
-    }
-
-    // Rx Channels
-    const rxChannels = xmlDoc.querySelectorAll('rxchannel');
-    output.push(`--> Device RxChannels <--`);
-    output.push('| danteId | mediaType | name | subscribed_channel | subscribed_device |');
-    output.push('|---------|------------|------|---------------------|--------------------|');
-
-    rxChannels.forEach(rx => {
-      const id = rx.getAttribute('danteId') || '';
-      const mediaType = rx.getAttribute('mediaType') || '';
-      const name = rx.querySelector('name')?.textContent || '';
-      const channel = rx.querySelector('subscribed_channel')?.textContent || '';
-      const device = rx.querySelector('subscribed_device')?.textContent || '';
-      output.push(`| ${id.padEnd(7)} | ${mediaType.padEnd(10)} | ${name.padEnd(4)} | ${channel.padEnd(19)} | ${device.padEnd(18)} |`);
-    });
-
-    // Tx Channels
-    const txChannels = xmlDoc.querySelectorAll('txchannel');
-    output.push('');
-    output.push(`--> Device TxChannels <--`);
-    if (txChannels.length === 0) {
-      output.push(`!!! There's no tx channels !!!`);
-    } else {
-      output.push('| danteId | name |');
-      output.push('|---------|------|');
-      txChannels.forEach(tx => {
-        const id = tx.getAttribute('danteId') || '';
-        const name = tx.querySelector('name')?.textContent || '';
-        output.push(`| ${id.padEnd(7)} | ${name.padEnd(4)} |`);
-      });
-    }
-
-    // Display the result
-    document.getElementById('output').textContent = output.join('\n');
-
-    // Enable and show the download button
-    const downloadBtn = document.getElementById('downloadBtn');
-    downloadBtn.style.display = 'inline-block';
-    
-    // Set up the click event to download the content as a .txt file
-    downloadBtn.onclick = function() {
-      const blob = new Blob([output.join('\n')], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'dante-output.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    };
+    console.log("XML loaded");
+    document.getElementById('generateBtn').style.display = 'inline-block';
   };
 
   reader.readAsText(file);
+});
+
+document.getElementById('generateBtn').addEventListener('click', function() {
+  console.log("Button clicked");
+  if (!parsedData) return;
+
+  const xmlDoc = parsedData;
+  const device = xmlDoc.querySelector('device');
+  const rxDeviceName = device?.querySelector('name')?.textContent || '(unknown)';
+  const rxChannels = xmlDoc.querySelectorAll('rxchannel');
+
+  // 1. Build TX headers
+  const txSet = new Set();
+  rxChannels.forEach(rx => {
+    const txDevice = rx.querySelector('subscribed_device')?.textContent || '';
+    const txChannel = rx.querySelector('subscribed_channel')?.textContent || '';
+    if (txDevice && txChannel) {
+      txSet.add(`${txDevice}/${txChannel}`);
+    }
+  });
+  const txHeaders = Array.from(txSet).sort();
+
+  // 2. Build header rows
+  const row1 = ['','', ...Array(txHeaders.length).fill('TX')];
+  const row2 = ['Rx Device', 'Rx Channel'];
+  const row3 = ['',''];
+  const merges = [];
+
+  let currentDev = '';
+  let devStartCol = 2;
+
+  txHeaders.forEach((entry, i) => {
+    const [dev, ch] = entry.split('/');
+    row2.push(dev);
+    row3.push(ch);
+
+    if (dev !== currentDev) {
+      if (currentDev !== '') {
+        const end = i + 1;
+        merges.push({ s: { r: 1, c: devStartCol }, e: { r: 1, c: end } });
+        devStartCol = end + 1;
+      }
+      currentDev = dev;
+    }
+  });
+  if (currentDev && devStartCol <= txHeaders.length + 1) {
+    merges.push({ s: { r: 1, c: devStartCol }, e: { r: 1, c: txHeaders.length + 1 } });
+  }
+
+  const matrixRows = [row1, row2, row3];
+
+  // 3. Fill data rows
+  rxChannels.forEach(rx => {
+    const rxName = rx.querySelector('name')?.textContent || '';
+    const txDevice = rx.querySelector('subscribed_device')?.textContent || '';
+    const txChannel = rx.querySelector('subscribed_channel')?.textContent || '';
+    const match = `${txDevice}/${txChannel}`;
+    const row = [rxDeviceName, rxName];
+
+    txHeaders.forEach(header => {
+      row.push(header === match ? '●' : '');
+    });
+
+    matrixRows.push(row);
+  });
+
+  // 4. Write to sheet
+  const ws = XLSX.utils.aoa_to_sheet(matrixRows);
+  ws['!merges'] = merges;
+
+  const boldCenter = {
+    font: { bold: true },
+    alignment: { horizontal: 'center', vertical: 'center' },
+    fill: { fgColor: { rgb: 'DDDDDD' } }
+  };
+  const centerDot = {
+    alignment: { horizontal: 'center', vertical: 'center' }
+  };
+
+  for (let R = 0; R < matrixRows.length; R++) {
+    for (let C = 0; C < matrixRows[R].length; C++) {
+      const cell = ws[XLSX.utils.encode_cell({ r: R, c: C })];
+      if (!cell) continue;
+
+      if (R < 3 || C < 2) {
+        cell.s = boldCenter;
+      } else if (matrixRows[R][C] === '●') {
+        cell.s = centerDot;
+      }
+    }
+  }
+
+  // 5. Force all columns to ~19 pixels wide (wch ~2.5)
+  ws['!cols'] = matrixRows[0].map(() => ({ wch: 2.5 }));
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Routing Matrix');
+  XLSX.writeFile(wb, 'dante-matrix.xlsx');
 });
