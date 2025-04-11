@@ -31,5 +31,4 @@ It’s designed to quickly show Rx/Tx channel routing in a format that looks lik
 
 ## 🖼 Example Output
 
-```md
 ![Matrix Example](https://raw.githubusercontent.com/domtrotta/Dante-XML-Converter/main/matrix-preview.png)
